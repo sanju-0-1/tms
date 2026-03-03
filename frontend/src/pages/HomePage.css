@@ -1,0 +1,327 @@
+/* ============================================
+   HOMEPAGE — Modern Sidebar Layout
+   Deep Emerald & Teal Theme
+   ============================================ */
+
+.home-page {
+  min-height: calc(100vh - 5rem);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Outfit", sans-serif;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* === Decorative radial mesh top-left === */
+.home-page::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 400px;
+  height: 400px;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 28px,
+      rgba(16, 185, 129, 0.06) 28px,
+      rgba(16, 185, 129, 0.06) 29px
+    ),
+    repeating-linear-gradient(
+      60deg,
+      transparent,
+      transparent 28px,
+      rgba(16, 185, 129, 0.06) 28px,
+      rgba(16, 185, 129, 0.06) 29px
+    ),
+    repeating-linear-gradient(
+      120deg,
+      transparent,
+      transparent 28px,
+      rgba(16, 185, 129, 0.06) 28px,
+      rgba(16, 185, 129, 0.06) 29px
+    );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  mask-image: radial-gradient(circle, white 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle, white 30%, transparent 75%);
+}
+
+/* === Main container === */
+.home-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  animation: scaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* === Hero Section === */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem 2.5rem;
+  border: none;
+  background: transparent;
+}
+
+/* === "TMS" pill badge === */
+.brand-badge {
+  display: inline-block;
+  padding: 0.4rem 1.4rem;
+  background: rgba(5, 40, 22, 0.9);
+  color: #6ee7b7;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 1.25rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+/* === Big title === */
+.home-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  animation: none;
+  margin-bottom: 1.1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.home-title span {
+  background: linear-gradient(135deg, #10b981 0%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* === Subtitle === */
+.home-subtitle {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* === Content section wrapper === */
+.content-section {
+  width: 100%;
+  padding: 0 0 1.5rem;
+}
+
+/* === User welcome card — transparent === */
+.user-welcome-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === User info row — shown in sidebar, hidden here === */
+.user-info {
+  display: none;
+}
+
+.avatar-placeholder { display: none; }
+
+/* === Section header / label === */
+.section-header {
+  margin-bottom: 1rem;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(110, 231, 183, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* === Quick links grid === */
+.quick-links-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* === Individual card === */
+.quick-link-card {
+  background: rgba(5, 26, 13, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 18px;
+  padding: 1.75rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+}
+
+.quick-link-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 40%, rgba(16, 185, 129, 0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.quick-link-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(8, 36, 19, 0.95);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 18px rgba(16, 185, 129, 0.1);
+}
+
+.quick-link-card:hover::before {
+  opacity: 1;
+}
+
+/* === Icon area === */
+.link-icon {
+  font-size: 2.2rem;
+  width: 60px;
+  height: 60px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  position: relative;
+  z-index: 1;
+}
+
+.quick-link-card:hover .link-icon {
+  transform: scale(1.08);
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18);
+}
+
+/* === Card label === */
+.link-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  position: relative;
+  z-index: 1;
+}
+
+/* === Login message (not-authenticated state) === */
+.login-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(10, 32, 22, 0.5);
+  border-radius: 24px;
+  border: 1px dashed rgba(16, 185, 129, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  backdrop-filter: blur(12px);
+}
+
+.login-message p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+}
+
+.login-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+  color: white;
+  padding: 0.9rem 2.2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.35);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.login-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 32px rgba(16, 185, 129, 0.45);
+}
+
+/* Non-admin message */
+.non-admin-message {
+  padding: 2rem;
+  background: rgba(5, 26, 13, 0.5);
+  border-radius: 18px;
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  color: rgba(255,255,255,0.55);
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* === Responsive === */
+@media (max-width: 700px) {
+  .home-title { font-size: 2.4rem; }
+  .quick-links-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .quick-link-card { padding: 1.4rem 0.75rem 1.2rem; }
+  .link-icon { width: 50px; height: 50px; font-size: 1.8rem; }
+}
+
+@media (max-width: 480px) {
+  .quick-links-container { grid-template-columns: repeat(2, 1fr); }
+  .home-title { font-size: 2rem; }
+}

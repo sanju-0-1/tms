@@ -1,0 +1,298 @@
+/* ============================================
+   NAVBAR.CSS — Top Navbar Layout
+   Deep Emerald & Teal Theme
+   ============================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --navbar-height: 68px;
+  --sidebar-bg: #051a0d;
+  --sidebar-border: rgba(16, 185, 129, 0.15);
+  --sidebar-hover: rgba(16, 185, 129, 0.12);
+  --sidebar-active: #10b981;
+  --text-primary: #ffffff;
+  --text-secondary: #a7f3d0;
+  --accent-gradient: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+  --glass-effect: blur(16px);
+  --danger-color: #f87171;
+  --transition-speed: 0.25s;
+  --page-bg: #020c07;
+}
+
+/* ---- Body ---- */
+body {
+  padding-left: 0 !important;
+  padding-top: var(--navbar-height) !important;
+  font-family: "Outfit", sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--page-bg);
+}
+
+/* ============================================
+   TOP NAVBAR
+   ============================================ */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: var(--navbar-height);
+  background: rgba(2, 10, 5, 0.92);
+  border-bottom: 1px solid var(--sidebar-border);
+  box-shadow:
+    0 1px 0 rgba(16, 185, 129, 0.08),
+    0 4px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: var(--glass-effect);
+  -webkit-backdrop-filter: var(--glass-effect);
+  z-index: 9999;
+  padding: 0 2.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  overflow: visible;
+}
+
+/* Subtle bottom glow line */
+.sidebar::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.35), transparent);
+  pointer-events: none;
+}
+
+/* ============================================
+   BRAND / LOGO
+   ============================================ */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 100%;
+  padding: 0;
+}
+
+.sidebar-header::after { display: none; }
+
+.sidebar-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-decoration: none;
+  color: white;
+  -webkit-text-fill-color: white;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  letter-spacing: -0.01em;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  -webkit-text-fill-color: white;
+  background-clip: unset;
+  -webkit-background-clip: unset;
+  font-size: 1.1rem;
+  font-weight: 900;
+  box-shadow:
+    0 4px 14px rgba(16, 185, 129, 0.4),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   NAV LINKS (center)
+   ============================================ */
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 1rem;
+  overflow: visible;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+
+.nav-group-label { display: none; }
+.nav-divider { display: none; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.8rem;
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  font-size: 0.855rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all var(--transition-speed) ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav-link:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-link.active {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.12);
+  font-weight: 600;
+}
+
+/* Active bottom underline */
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, #10b981, #0d9488);
+  border-radius: 2px;
+}
+
+.nav-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+  opacity: 0.85;
+  transition: all 0.2s;
+}
+
+.nav-link.active .nav-icon,
+.nav-link:hover .nav-icon {
+  opacity: 1;
+}
+
+/* ============================================
+   USER / RIGHT SIDE
+   ============================================ */
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  border-top: none;
+  backdrop-filter: none;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f472b6, #db2777);
+  color: white;
+  -webkit-text-fill-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 0 12px rgba(219, 39, 119, 0.35);
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-greeting {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: white;
+  line-height: 1.2;
+}
+
+.logout-btn {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  padding: 0.48rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  letter-spacing: 0.01em;
+}
+
+.logout-btn:hover {
+  background: rgba(185, 28, 28, 0.45);
+  color: #fecaca;
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.22);
+  transform: translateY(-1px);
+}
+
+.sidebar::-webkit-scrollbar { display: none; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 900px) {
+  .sidebar-nav { display: none; }
+  .sidebar { padding: 0 1.25rem; }
+}
+
+@media (max-width: 600px) {
+  .user-info { display: none; }
+  .logout-btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+}

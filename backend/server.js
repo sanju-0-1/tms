@@ -20,7 +20,9 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000', 
-    'https://tms-beryl.vercel.app'
+    'https://tms-beryl.vercel.app',
+    'https://tms-d850sfszw-sanju-0-1s-projects.vercel.app',
+    /\.vercel\.app$/
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,

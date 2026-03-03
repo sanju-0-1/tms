@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://tms-047i.onrender.com";
+const BASE_URL = "http://localhost:5000/api";
 
 const getToken = () => {
   return localStorage.getItem("token");

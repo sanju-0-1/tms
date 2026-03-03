@@ -19,6 +19,7 @@ import ComplaintFormPage from "./pages/ComplaintFormPage";
 import ComplaintsDashboardPage from "./pages/ComplaintsDashboardPage";
 import UserComplaintDashboardPage from "./pages/UserComplaintDashboardPage";
 import ReportsPage from "./pages/ReportsPage";
+import ProfilePage from "./pages/ProfilePage";
 import "./App.css";
 
 const ProtectedRoute = ({ children }) => {
@@ -150,6 +151,14 @@ function App() {
               <SuperAdminRoute>
                 <ReportsPage />
               </SuperAdminRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
             }
           />
         </Routes>

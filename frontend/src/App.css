@@ -59,6 +59,23 @@ body {
   pointer-events: none;
 }
 
+/* ── Navbar offset — all page root containers ──────── */
+.home-page,
+.profile-page,
+.reports-page,
+.user-page,
+.department-page,
+.programme-page,
+.role-page,
+.room-page,
+.block-page,
+.page-container,
+.complaints-dashboard,
+.user-complaint-dashboard,
+.complaint-form-page {
+  margin-top: 100px;
+}
+
 /* Page entrance animation */
 .page-fade {
   animation: pageIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;

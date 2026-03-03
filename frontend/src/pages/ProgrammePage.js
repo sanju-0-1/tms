@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { programmeService, departmentService } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./ProgrammePage.css";
 
 const ProgrammePage = () => {
@@ -16,6 +17,7 @@ const ProgrammePage = () => {
     department: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   useEffect(() => {
     if (user?.role === "SuperAdmin") {
@@ -70,14 +72,18 @@ const ProgrammePage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await programmeService.delete(id);
-        fetchData();
-      } catch (err) {
-        setError("Failed to delete programme");
-      }
+  const handleDelete = (id) => {
+    setConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await programmeService.delete(confirm.id);
+      fetchData();
+    } catch (err) {
+      setError("Failed to delete programme");
+    } finally {
+      setConfirm({ open: false, id: null });
     }
   };
 
@@ -219,6 +225,13 @@ const ProgrammePage = () => {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Programme?"
+        message="This programme will be permanently deleted. This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
     </div>
   );
 };

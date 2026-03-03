@@ -6,6 +6,7 @@ import {
   programmeService,
   blockService,
 } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./RoomPage.css";
 
 const RoomPage = () => {
@@ -24,6 +25,7 @@ const RoomPage = () => {
     block: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   useEffect(() => {
     if (user?.role === "SuperAdmin") {
@@ -85,14 +87,18 @@ const RoomPage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await roomService.delete(id);
-        fetchData();
-      } catch (err) {
-        setError("Failed to delete room");
-      }
+  const handleDelete = (id) => {
+    setConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await roomService.delete(confirm.id);
+      fetchData();
+    } catch (err) {
+      setError("Failed to delete room");
+    } finally {
+      setConfirm({ open: false, id: null });
     }
   };
 
@@ -258,6 +264,13 @@ const RoomPage = () => {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Room?"
+        message="This room will be permanently deleted. This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
     </div>
   );
 };

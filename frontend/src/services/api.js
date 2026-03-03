@@ -1,4 +1,8 @@
 import axios from "axios";
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
 const getToken = () => {
@@ -21,6 +25,15 @@ export const authService = {
   login: (email, password) => api.post("/auth/login", { email, password }),
   register: (userData) => api.post("/auth/register", userData),
   getProfile: () => api.get("/auth/profile"),
+};
+
+export const profileService = {
+  updateProfile: (formData) =>
+    api.put("/auth/profile", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  changePassword: (currentPassword, newPassword) =>
+    api.put("/auth/change-password", { currentPassword, newPassword }),
 };
 
 export const departmentService = {

@@ -1,6 +1,32 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// ── Multer: profile picture upload ────────────────────────────
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../uploads/profiles');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `profile_${req.user.id}_${Date.now()}${ext}`);
+  },
+});
+const profileUpload = multer({
+  storage,
+  limits: { fileSize: 3 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only image files are allowed'), false);
+  },
+}).single('profilePicture');
+
+exports.profileUpload = profileUpload;
 
 exports.register = async (req, res) => {
   try {
@@ -74,5 +100,58 @@ exports.getProfile = async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch profile', error: error.message });
+  }
+};
+
+// Update profile (username + profile picture)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const updateData = {};
+    if (username && username.trim()) updateData.username = username.trim();
+
+    if (req.file) {
+      // Delete old profile picture if it exists
+      const existing = await User.findById(req.user.id, 'profilePicture');
+      if (existing?.profilePicture) {
+        const oldPath = path.join(__dirname, '..', existing.profilePicture.replace(/^\//,''));
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      updateData.profilePicture = `/uploads/profiles/${req.file.filename}`;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).populate('department').populate('programme');
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update profile', error: error.message });
+  }
+};
+
+// Change password
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword)
+      return res.status(400).json({ message: 'Both current and new password are required' });
+    if (newPassword.length < 6)
+      return res.status(400).json({ message: 'New password must be at least 6 characters' });
+
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to change password', error: error.message });
   }
 };

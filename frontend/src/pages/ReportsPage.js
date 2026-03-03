@@ -6,6 +6,7 @@ import {
   userService,
 } from "../services/api";
 import { AuthContext } from "../context/AuthContext";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./ReportsPage.css";
 
 const ReportsPage = () => {
@@ -23,6 +24,7 @@ const ReportsPage = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   // Helper function to fetch reports with specific filters
   const fetchReportInternal = async (filterParams) => {
@@ -85,20 +87,18 @@ const ReportsPage = () => {
     fetchReportInternal(filters);
   };
 
-  const handleDelete = async (id) => {
-    if (
-      !window.confirm("Are you sure you want to delete this complaint record?")
-    )
-      return;
+  const handleDelete = (id) => {
+    setConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
     try {
-      await complaintService.delete(id);
-      // Remove from local state to update UI immediately
-      setResults(results.filter((c) => c._id !== id));
+      await complaintService.delete(confirm.id);
+      setResults(results.filter((c) => c._id !== confirm.id));
     } catch (err) {
-      alert(
-        "Failed to delete complaint: " +
-          (err.response?.data?.message || err.message),
-      );
+      setError("Failed to delete complaint: " + (err.response?.data?.message || err.message));
+    } finally {
+      setConfirm({ open: false, id: null });
     }
   };
 
@@ -338,6 +338,13 @@ const ReportsPage = () => {
           </div>
         )}
       </div>
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Complaint Record?"
+        message="This complaint record will be permanently deleted. This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
     </div>
   );
 };

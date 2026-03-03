@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { roleService } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./RolePage.css";
+
+const PERMISSIONS = ["view_complaints", "assign_tasks", "approve_work"];
 
 const RolePage = () => {
   const { user } = useContext(AuthContext);
@@ -11,9 +14,10 @@ const RolePage = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    permissions: "",
+    permissions: [],
   });
   const [editingId, setEditingId] = useState(null);
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   useEffect(() => {
     if (user?.role === "SuperAdmin") {
@@ -34,22 +38,25 @@ const RolePage = () => {
     }
   };
 
+  const handlePermissionToggle = (perm) => {
+    setFormData((prev) => ({
+      ...prev,
+      permissions: prev.permissions.includes(perm)
+        ? prev.permissions.filter((p) => p !== perm)
+        : [...prev.permissions, perm],
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const permissions = formData.permissions
-        .split(",")
-        .map((p) => p.trim())
-        .filter((p) => p);
-
-      const data = { ...formData, permissions };
-
+      const data = { ...formData };
       if (editingId) {
         await roleService.update(editingId, data);
       } else {
         await roleService.create(data);
       }
-      setFormData({ name: "", permissions: "" });
+      setFormData({ name: "", permissions: [] });
       setEditingId(null);
       setShowForm(false);
       fetchRoles();
@@ -61,20 +68,24 @@ const RolePage = () => {
   const handleEdit = (role) => {
     setFormData({
       name: role.name,
-      permissions: role.permissions?.join(", ") || "",
+      permissions: role.permissions || [],
     });
     setEditingId(role._id);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await roleService.delete(id);
-        fetchRoles();
-      } catch (err) {
-        setError("Failed to delete role");
-      }
+  const handleDelete = (id) => {
+    setConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await roleService.delete(confirm.id);
+      fetchRoles();
+    } catch (err) {
+      setError("Failed to delete role");
+    } finally {
+      setConfirm({ open: false, id: null });
     }
   };
 
@@ -116,15 +127,20 @@ const RolePage = () => {
             />
           </div>
           <div className="form-group-item">
-            <label>Permissions (comma separated)</label>
-            <textarea
-              value={formData.permissions}
-              onChange={(e) =>
-                setFormData({ ...formData, permissions: e.target.value })
-              }
-              rows="3"
-              placeholder="e.g., view_complaints, assign_tasks, approve_work"
-            ></textarea>
+            <label>Permissions</label>
+            <div className="permissions-checkbox-group">
+              {PERMISSIONS.map((perm) => (
+                <label key={perm} className="permission-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.permissions.includes(perm)}
+                    onChange={() => handlePermissionToggle(perm)}
+                    className="permission-checkbox"
+                  />
+                  <span className="permission-checkbox-text">{perm}</span>
+                </label>
+              ))}
+            </div>
           </div>
           <button
             type="submit"
@@ -155,14 +171,21 @@ const RolePage = () => {
                     <td>
                       <strong>{role.name}</strong>
                     </td>
-                    <td style={{ whiteSpace: "normal", maxWidth: "300px" }}>
-                      {role.permissions && role.permissions.length > 0
-                        ? role.permissions.map((perm, idx) => (
-                            <span key={idx} className="permission-tag">
+                    <td>
+                      <div className="permissions-display">
+                        {PERMISSIONS.map((perm) => {
+                          const has = role.permissions?.includes(perm);
+                          return (
+                            <span
+                              key={perm}
+                              className={`perm-check-item ${has ? "perm-granted" : "perm-denied"}`}
+                            >
+                              <span className="perm-check-icon">{has ? "✓" : "✗"}</span>
                               {perm}
                             </span>
-                          ))
-                        : "-"}
+                          );
+                        })}
+                      </div>
                     </td>
                     {user?.role === "SuperAdmin" && (
                       <td style={{ textAlign: "right" }}>
@@ -202,6 +225,13 @@ const RolePage = () => {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Role?"
+        message="This role will be permanently deleted. This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
     </div>
   );
 };

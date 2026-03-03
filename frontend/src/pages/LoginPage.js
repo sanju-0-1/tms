@@ -36,10 +36,6 @@ const LoginPage = () => {
           <span className="logo-icon">T</span>
           <span>TMS</span>
         </div>
-        <div className="navbar-links">
-          <a href="#about">About</a>
-          <a href="#support">Support</a>
-        </div>
       </nav>
       <div className="login-card">
         <h1>Login to TMS</h1>

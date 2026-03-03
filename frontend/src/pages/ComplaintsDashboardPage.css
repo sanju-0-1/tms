@@ -11,9 +11,10 @@
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Header ───────────────────────────────────────────────── */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -48,6 +49,7 @@
   margin: 0;
 }
 
+/* ── Stats Grid ───────────────────────────────────────────── */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -56,7 +58,6 @@
 }
 
 .stat-card {
-  background: rgba(16, 185, 129, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   padding: 2rem 1.75rem;
@@ -66,7 +67,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
   cursor: default;
@@ -87,21 +88,57 @@
 
 .stat-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(16, 185, 129, 0.4);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 20px rgba(16, 185, 129, 0.1);
 }
 
 .stat-card:hover::after {
   transform: scaleX(1);
 }
 
+/* ── Per-card colours & hover glows ──────────────────────── */
+.stat-card.total .stat-value {
+  color: #e2e8f0;
+  text-shadow: 0 0 15px rgba(226, 232, 240, 0.3);
+}
+
+.stat-card.total:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(226, 232, 240, 0.2);
+  border-color: rgba(226, 232, 240, 0.4);
+}
+
+.stat-card.pending .stat-value {
+  color: #fcd34d;
+  text-shadow: 0 0 15px rgba(255, 197, 6, 0.4);
+}
+
+.stat-card.pending:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(252, 211, 77, 0.2);
+  border-color: rgba(252, 211, 77, 0.4);
+}
+
+.stat-card.assigned .stat-value {
+  color: #a78bfa;
+  text-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
+}
+
+.stat-card.assigned:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(167, 139, 250, 0.2);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.stat-card.completed .stat-value {
+  color: #34d399;
+  text-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+}
+
+.stat-card.completed:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(52, 211, 153, 0.2);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+/* ── Stat value & label ───────────────────────────────────── */
 .stat-value {
   font-size: 3rem;
   font-weight: 800;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
   line-height: 1;
   margin-bottom: 0.75rem;
 }
@@ -114,6 +151,7 @@
   letter-spacing: 0.1em;
 }
 
+/* ── Table Card ───────────────────────────────────────────── */
 .dashboard-table-card {
   background: rgba(16, 185, 129, 0.04);
   backdrop-filter: blur(20px);
@@ -149,9 +187,10 @@
   text-align: left;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--text-light);
+  color: #e2e8f0;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  border-bottom: 2px solid rgba(16, 185, 129, 0.2);
 }
 
 .complaints-table td {
@@ -166,6 +205,7 @@
   background: rgba(16, 185, 129, 0.04);
 }
 
+/* ── Status Badges ────────────────────────────────────────── */
 .status-badge {
   padding: 0.4rem 0.9rem;
   border-radius: 9999px;
@@ -175,11 +215,12 @@
   text-transform: uppercase;
 }
 
-.status-badge.pending   { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
-.status-badge.in-progress { background: rgba(16, 185, 129, 0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
-.status-badge.closed    { background: rgba(52, 211, 153, 0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
-.status-badge.onhold    { background: rgba(148, 163, 184, 0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+.status-badge.pending     { background: rgba(245, 158, 11,  0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11,  0.2); }
+.status-badge.in-progress { background: rgba(16,  185, 129, 0.12); color: #6ee7b7; border: 1px solid rgba(16,  185, 129, 0.2); }
+.status-badge.closed      { background: rgba(52,  211, 153, 0.12); color: #34d399; border: 1px solid rgba(52,  211, 153, 0.2); }
+.status-badge.onhold      { background: rgba(148, 163, 184, 0.12); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.2); }
 
+/* ── Action Buttons ───────────────────────────────────────── */
 .action-buttons {
   display: flex;
   gap: 0.6rem;
@@ -215,6 +256,7 @@
   border-color: rgba(16, 185, 129, 0.3);
 }
 
+/* ── Assign Dropdown ──────────────────────────────────────── */
 .assign-dropdown {
   padding: 0.55rem 1rem;
   border: 1px solid var(--glass-border);
@@ -231,6 +273,7 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
+/* ── Attachment Link ──────────────────────────────────────── */
 .attachment-link {
   color: #6ee7b7;
   text-decoration: none;
@@ -248,6 +291,7 @@
   color: #10b981;
 }
 
+/* ── Error Banner ─────────────────────────────────────────── */
 .error-banner {
   background: rgba(239, 68, 68, 0.08);
   color: #f87171;
@@ -259,6 +303,7 @@
   font-weight: 700;
 }
 
+/* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .complaints-dashboard { padding: 1.5rem; }
   .dashboard-header { padding: 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }

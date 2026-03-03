@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { departmentService } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./DepartmentPage.css";
 
 const DepartmentPage = () => {
@@ -14,6 +15,7 @@ const DepartmentPage = () => {
     shortName: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   useEffect(() => {
     if (user?.role === "SuperAdmin") {
@@ -64,14 +66,18 @@ const DepartmentPage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await departmentService.delete(id);
-        fetchDepartments();
-      } catch (err) {
-        setError("Failed to delete department");
-      }
+  const handleDelete = (id) => {
+    setConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await departmentService.delete(confirm.id);
+      fetchDepartments();
+    } catch (err) {
+      setError("Failed to delete department");
+    } finally {
+      setConfirm({ open: false, id: null });
     }
   };
 
@@ -194,6 +200,13 @@ const DepartmentPage = () => {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Department?"
+        message="This department will be permanently deleted. This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
     </div>
   );
 };

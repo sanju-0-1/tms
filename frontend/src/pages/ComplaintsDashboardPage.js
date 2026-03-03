@@ -129,26 +129,20 @@ const ComplaintsDashboardPage = () => {
       {error && <div className="error-banner">{error}</div>}
 
       <div className="stats-grid">
-        <div className="stat-card">
+        <div className="stat-card total">
           <div className="stat-value">{stats.total}</div>
           <div className="stat-label">Total</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value" style={{ color: "#f59e0b" }}>
-            {stats.pending}
-          </div>
+        <div className="stat-card pending">
+          <div className="stat-value">{stats.pending}</div>
           <div className="stat-label">Pending</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value" style={{ color: "#8b5cf6" }}>
-            {stats.assigned}
-          </div>
+        <div className="stat-card assigned">
+          <div className="stat-value">{stats.assigned}</div>
           <div className="stat-label">Assigned</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value" style={{ color: "#10b981" }}>
-            {stats.closed}
-          </div>
+        <div className="stat-card completed">
+          <div className="stat-value">{stats.closed}</div>
           <div className="stat-label">Completed</div>
         </div>
       </div>

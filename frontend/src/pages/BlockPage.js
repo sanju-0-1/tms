@@ -5,6 +5,7 @@ import {
   departmentService,
   programmeService,
 } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "./BlockPage.css";
 
 const BlockPage = () => {
@@ -21,6 +22,7 @@ const BlockPage = () => {
     programme: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   useEffect(() => {
     if (user?.role === "SuperAdmin") {
@@ -74,14 +76,18 @@ const BlockPage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      try {
-        await blockService.delete(id);
-        fetchData();
-      } catch (err) {
-        setError("Failed to delete block");
-      }
+  const handleDelete = (id) => {
+    setConfirm({ open: true, id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await blockService.delete(confirm.id);
+      fetchData();
+    } catch (err) {
+      setError("Failed to delete block");
+    } finally {
+      setConfirm({ open: false, id: null });
     }
   };
 
@@ -233,6 +239,13 @@ const BlockPage = () => {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Block?"
+        message="This block will be permanently deleted. This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
     </div>
   );
 };

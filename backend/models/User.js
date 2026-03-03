@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Programme",
     },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true },
 );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { complaintService, userService } from "../services/api";
+import { complaintService, userService, BASE_URL } from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import "./ComplaintsDashboardPage.css";
 
@@ -199,7 +199,7 @@ const ComplaintsDashboardPage = () => {
                         <td>
                           {c.attachment ? (
                             <a
-                              href={`http://localhost:5000${c.attachment}`}
+                              href={`${BASE_URL}${c.attachment}`}
                               target="_blank"
                               rel="noreferrer"
                               className="attachment-link"

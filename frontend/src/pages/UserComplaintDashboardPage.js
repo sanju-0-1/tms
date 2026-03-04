@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
-import { complaintService } from "../services/api";
+import { complaintService, BASE_URL } from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import "./UserComplaintDashboardPage.css";
 
@@ -239,7 +239,7 @@ const UserComplaintDashboardPage = () => {
                 <label>Attachment</label>
                 <div style={{ marginTop: "0.5rem" }}>
                   <a
-                    href={`http://localhost:5000/${selectedComplaint.attachment}`}
+                    href={`${BASE_URL}${selectedComplaint.attachment.startsWith('/') ? '' : '/'}${selectedComplaint.attachment}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="detail-attachment-link"

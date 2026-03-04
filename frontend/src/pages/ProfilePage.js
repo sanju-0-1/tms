@@ -1,9 +1,9 @@
 import React, { useState, useContext, useRef } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { profileService } from "../services/api";
+import { profileService, BASE_URL } from "../services/api";
 import "./ProfilePage.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL?.replace("/api", "") || "http://localhost:5000";
+const API_BASE = BASE_URL;
 
 /* ── Password strength helper ───────────────────────────── */
 const getStrength = (pw) => {

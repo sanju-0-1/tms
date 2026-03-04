@@ -58,7 +58,7 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ message: 'Internal server error', error: err.message });
+  res.status(500).json({ message: 'Internal server error', error: err.message, stack: err.stack });
 });
 
 const PORT = process.env.PORT || 5000;

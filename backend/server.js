@@ -17,7 +17,7 @@ const path = require('path');
 const app = express();
 
 // Middleware
-app.use(cors({
+const corsOptions = {
   origin: [
     'http://localhost:3000', 
     'https://tms-beryl.vercel.app',
@@ -28,8 +28,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-}));
-app.options('*', cors()); // Enable pre-flight for all routes
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 app.use(express.json());
 
 // Connect to MongoDB

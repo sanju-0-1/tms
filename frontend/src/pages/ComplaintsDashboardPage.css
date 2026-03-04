@@ -265,6 +265,12 @@
   color: var(--text-main);
   background: rgba(16, 185, 129, 0.05);
   cursor: pointer;
+  min-width: 130px;
+}
+
+.assign-dropdown option {
+  background-color: #0f172a;
+  color: #e2e8f0;
 }
 
 .assign-dropdown:focus {

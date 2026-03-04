@@ -98,7 +98,7 @@ const Navbar = () => {
         {isAuthenticated && (
           <div className="nav-links-section">
             <div className="nav-menu">
-              <NavItem to="/complaints/new" icon={PlusCircle} label="Raise Ticket" />
+              <NavItem to="/complaints/new" icon={PlusCircle} label="Raise Complaint" />
 
               {!isSuperAdmin && (
                 <NavItem to="/my-complaints" icon={Layout} label="My Activity" />
@@ -106,8 +106,8 @@ const Navbar = () => {
 
               {isSuperAdmin && (
                 <>
-                  <NavItem to="/complaints" icon={FileStack}  label="Tickets"   />
-                  <NavItem to="/reports"    icon={BarChart3}  label="Analytics" />
+                  <NavItem to="/complaints" icon={FileStack}  label="Complaints"   />
+                  <NavItem to="/reports"    icon={BarChart3}  label="Reports"    />
                   <NavItem to="/users"      icon={Users}      label="Users"     />
 
                   {/* ── Manage Dropdown ── */}

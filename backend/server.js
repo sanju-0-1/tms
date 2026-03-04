@@ -22,7 +22,8 @@ app.use(cors({
     'http://localhost:3000', 
     'https://tms-beryl.vercel.app',
     'https://tms-d850sfszw-sanju-0-1s-projects.vercel.app',
-    /\.vercel\.app$/
+    /\.vercel\.app$/,
+    /\.onrender\.com$/
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,

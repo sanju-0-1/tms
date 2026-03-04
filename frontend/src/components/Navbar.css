@@ -361,10 +361,10 @@
 
 /* ─── Responsive ────────────────────────────────────── */
 @media (max-width: 1100px) {
-  .nav-link span {
+  .nav-menu .nav-link span {
     display: none;
   }
-  .nav-link {
+  .nav-menu .nav-link {
     padding: 6px 9px;
   }
   .user-meta {

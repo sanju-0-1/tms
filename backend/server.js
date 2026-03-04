@@ -22,6 +22,7 @@ const corsOptions = {
     'http://localhost:3000', 
     'https://tms-beryl.vercel.app',
     'https://tms-d850sfszw-sanju-0-1s-projects.vercel.app',
+    'https://tms12.rvscasmcafsd2k25.in',
     /\.vercel\.app$/,
     /\.onrender\.com$/
   ],

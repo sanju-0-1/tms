@@ -96,11 +96,6 @@
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.filter-item select option {
-  background-color: #051a0d;
-  color: #d1fae5;
-}
-
 .filter-item input::placeholder {
   color: #4b7a65;
 }

@@ -182,14 +182,14 @@ const Navbar = () => {
       {/* ── Mobile Menu ── */}
       {isAuthenticated && mobileOpen && (
         <div className="mobile-nav-menu">
-          <NavItem to="/complaints/new" icon={PlusCircle} label="Raise Ticket" />
+          <NavItem to="/complaints/new" icon={PlusCircle} label="Raise Complaint" />
           {!isSuperAdmin && (
             <NavItem to="/my-complaints" icon={Layout} label="My Activity" />
           )}
           {isSuperAdmin && (
             <>
-              <NavItem to="/complaints" icon={FileStack}  label="Tickets"   />
-              <NavItem to="/reports"    icon={BarChart3}  label="Analytics" />
+              <NavItem to="/complaints" icon={FileStack}  label="Complaints"   />
+              <NavItem to="/reports"    icon={BarChart3}  label="Reports" />
               <NavItem to="/users"      icon={Users}      label="Users"     />
               <div className="mobile-section-label">Management</div>
               {manageItems.map(({ to, icon, label }) => (

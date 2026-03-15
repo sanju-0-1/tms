@@ -15,6 +15,7 @@ import BlockPage from "./pages/BlockPage";
 import RoomPage from "./pages/RoomPage";
 import RolePage from "./pages/RolePage";
 import UserPage from "./pages/UserPage";
+import DashboardPage from "./pages/DashboardPage";
 import ComplaintFormPage from "./pages/ComplaintFormPage";
 import ComplaintsDashboardPage from "./pages/ComplaintsDashboardPage";
 import UserComplaintDashboardPage from "./pages/UserComplaintDashboardPage";
@@ -67,7 +68,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <HomePage />
+                <DashboardPage />
               </ProtectedRoute>
             }
           />

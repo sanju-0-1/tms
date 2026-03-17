@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
-import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import DepartmentPage from "./pages/DepartmentPage";
 import ProgrammePage from "./pages/ProgrammePage";

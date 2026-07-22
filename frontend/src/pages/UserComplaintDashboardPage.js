@@ -305,7 +305,8 @@ const UserComplaintDashboardPage = () => {
                       {String(
                         complaint.assignedTo?._id || complaint.assignedTo,
                       ) === String(user?._id || user?.id) &&
-                      user?.role !== "SuperAdmin" ? (
+                      user?.role !== "SuperAdmin" &&
+                      complaint.status !== "Completed" ? (
                         <div onClick={(e) => e.stopPropagation()}>
                           {statusTarget.complaintId === complaint._id ? (
                             <div

@@ -4,14 +4,14 @@ import { COLORS, RADIUS, SHADOWS, SPACING } from "../theme/theme";
 
 export const StatCard = ({ title, value, icon, color = COLORS.primary, style }) => {
   return (
-    <View style={[styles.card, { borderLeftColor: color }, style]}>
-      <View style={styles.content}>
-        <View style={[styles.iconBox, { backgroundColor: `${color}20` }]}>
+    <View style={[styles.card, style]}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.title}>{title?.toUpperCase()}</Text>
+      </View>
+      <View style={styles.cardBody}>
+        <Text style={styles.value}>{value ?? 0}</Text>
+        <View style={[styles.iconBox, { backgroundColor: `${color}25` }]}>
           {icon}
-        </View>
-        <View style={styles.textGroup}>
-          <Text style={styles.value}>{value ?? 0}</Text>
-          <Text style={styles.title}>{title}</Text>
         </View>
       </View>
     </View>
@@ -20,18 +20,36 @@ export const StatCard = ({ title, value, icon, color = COLORS.primary, style }) 
 
 const styles = StyleSheet.create({
   card: {
+    width: "48%",
     backgroundColor: COLORS.card,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
-    borderLeftWidth: 4,
     padding: SPACING.md,
-    marginBottom: SPACING.sm,
+    justifyContent: "space-between",
+    minHeight: 110,
     ...SHADOWS.small,
   },
-  content: {
+  cardHeader: {
+    marginBottom: 4,
+  },
+  title: {
+    color: "#6EE7B7",
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+  },
+  cardBody: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    marginTop: SPACING.xs,
+  },
+  value: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "800",
+    lineHeight: 36,
   },
   iconBox: {
     width: 44,
@@ -39,20 +57,5 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: SPACING.md,
-  },
-  textGroup: {
-    flex: 1,
-  },
-  value: {
-    color: COLORS.text,
-    fontSize: 22,
-    fontWeight: "800",
-  },
-  title: {
-    color: COLORS.textSecondary,
-    fontSize: 13,
-    fontWeight: "500",
-    marginTop: 2,
   },
 });

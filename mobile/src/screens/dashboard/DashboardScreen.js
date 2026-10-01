@@ -6,7 +6,6 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthContext } from "../../context/AuthContext";
@@ -47,13 +46,11 @@ export const DashboardScreen = ({ navigation }) => {
 
       let filtered = all;
       if (isUser) {
-        // Regular users only see their own tickets
         filtered = all.filter((c) => {
           const createdById = c.createdBy?._id || c.createdBy;
           return String(createdById) === String(userId);
         });
       } else if (isStaff) {
-        // Staff see tickets assigned to them
         filtered = all.filter((c) => {
           const assignedToId = c.assignedTo?._id || c.assignedTo;
           return String(assignedToId) === String(userId);
@@ -84,28 +81,28 @@ export const DashboardScreen = ({ navigation }) => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  // Master options based on role
+  // Master options matching website dropdown menu
   const superAdminMasters = [
-    { title: "Departments", icon: "business", screen: "Departments", color: "#10B981" },
-    { title: "Programmes", icon: "school", screen: "Programmes", color: "#14B8A6" },
-    { title: "Blocks", icon: "cube", screen: "Blocks", color: "#0D9488" },
-    { title: "Rooms", icon: "keypad", screen: "Rooms", color: "#34D399" },
-    { title: "Roles", icon: "shield-checkmark", screen: "Roles", color: "#F59E0B" },
-    { title: "Users", icon: "people", screen: "Users", color: "#3B82F6" },
-    { title: "Reports", icon: "bar-chart", screen: "Reports", color: "#8B5CF6" },
+    { title: "Departments", icon: "business-outline", screen: "Departments", color: "#10B981" },
+    { title: "Programmes", icon: "school-outline", screen: "Programmes", color: "#14B8A6" },
+    { title: "Blocks", icon: "cube-outline", screen: "Blocks", color: "#0D9488" },
+    { title: "Rooms", icon: "keypad-outline", screen: "Rooms", color: "#34D399" },
+    { title: "Roles", icon: "shield-checkmark-outline", screen: "Roles", color: "#F59E0B" },
+    { title: "Users", icon: "people-outline", screen: "Users", color: "#3B82F6" },
+    { title: "Reports", icon: "bar-chart-outline", screen: "Reports", color: "#8B5CF6" },
   ];
 
   const adminMasters = [
-    { title: "Departments", icon: "business", screen: "Departments", color: "#10B981" },
-    { title: "Users", icon: "people", screen: "Users", color: "#3B82F6" },
-    { title: "Reports", icon: "bar-chart", screen: "Reports", color: "#8B5CF6" },
+    { title: "Departments", icon: "business-outline", screen: "Departments", color: "#10B981" },
+    { title: "Users", icon: "people-outline", screen: "Users", color: "#3B82F6" },
+    { title: "Reports", icon: "bar-chart-outline", screen: "Reports", color: "#8B5CF6" },
   ];
 
   const masterList = isSuperAdmin ? superAdminMasters : isAdmin ? adminMasters : [];
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title={isSuperAdmin ? "System Control" : isStaff ? "Field Operations" : "Member Hub"} />
+      <Header title={isSuperAdmin ? "TMS Control" : isStaff ? "Field Ops" : "Member Hub"} />
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
@@ -117,138 +114,130 @@ export const DashboardScreen = ({ navigation }) => {
           />
         }
       >
-        {/* Customized Welcome Banner */}
-        <View style={styles.welcomeCard}>
-          <View style={styles.welcomeTextGroup}>
-            <View style={styles.badgePill}>
-              <Text style={styles.badgePillText}>
-                {isSuperAdmin ? "System Admin" : isAdmin ? "Administrator" : isStaff ? "Field Technician" : "Member Portal"}
+        {/* Welcome Banner matching exact tms12 Website Screenshot */}
+        <View style={styles.welcomeBanner}>
+          <View style={styles.welcomeContent}>
+            <View style={styles.controlPill}>
+              <Text style={styles.controlPillText}>
+                {isSuperAdmin ? "SYSTEM CONTROL" : isStaff ? "FIELD OPERATIONS" : "MEMBER HUB"}
               </Text>
             </View>
-            <Text style={styles.welcomeName}>Hello, {user?.name || "User"}</Text>
-            <Text style={styles.welcomeSubtext}>
+            <View style={styles.titleRow}>
+              <Text style={styles.welcomeTitle}>
+                Welcome, <Text style={styles.highlightName}>{user?.name || user?.username || "User"}</Text>!
+              </Text>
+              <Ionicons name="sparkles" size={26} color="#34D399" style={{ marginLeft: 6 }} />
+            </View>
+            <Text style={styles.welcomeSubtitle}>
               {isSuperAdmin
-                ? "Global system analytics & master control."
-                : isAdmin
-                ? "Department management & complaint oversight."
+                ? "Global system overview and complaint trends."
                 : isStaff
-                ? "Manage your assigned tasks and resolutions."
-                : "Track your tickets and facility feedback."}
+                ? "Manage your assigned technical tasks and resolutions."
+                : "Track your reported issues and facility feedback."}
             </Text>
-          </View>
-          <View style={styles.welcomeIconBadge}>
-            <Ionicons
-              name={isSuperAdmin ? "server-outline" : isStaff ? "construct-outline" : "ticket-outline"}
-              size={28}
-              color="#020C07"
-            />
           </View>
         </View>
 
-        {/* Action Grid based on Role */}
-        <Text style={styles.sectionHeader}>Quick Actions</Text>
+        {/* Quick Action Buttons Bar */}
         <View style={styles.actionGrid}>
           {(isUser || isSuperAdmin || isAdmin) && (
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: COLORS.primary }]}
               onPress={() => navigation.navigate("NewComplaint")}
             >
-              <Ionicons name="add-circle" size={24} color="#020C07" />
-              <Text style={styles.actionBtnTextDark}>Lodge Ticket</Text>
+              <Ionicons name="add-circle" size={20} color="#020C07" />
+              <Text style={styles.actionBtnTextDark}>Raise Complaint</Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.cardBorder }]}
+            style={[styles.actionBtn, styles.actionBtnOutline]}
             onPress={() => navigation.navigate("MyComplaintsTab")}
           >
-            <Ionicons name="ticket-outline" size={24} color={COLORS.primaryLight} />
+            <Ionicons name="ticket-outline" size={20} color={COLORS.primaryLight} />
             <Text style={styles.actionBtnTextLight}>{isStaff ? "Assigned Queue" : "My Tickets"}</Text>
           </TouchableOpacity>
 
           {(isSuperAdmin || isAdmin || isStaff) && (
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: COLORS.secondary }]}
+              style={[styles.actionBtn, styles.actionBtnSecondary]}
               onPress={() => navigation.navigate("AllComplaintsTab")}
             >
-              <Ionicons name="albums" size={24} color="#FFF" />
-              <Text style={styles.actionBtnTextLight}>All Tickets</Text>
+              <Ionicons name="albums-outline" size={20} color="#FFF" />
+              <Text style={styles.actionBtnTextLight}>Complaints</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        {/* Complaints Analytics Breakdown */}
-        <Text style={styles.sectionHeader}>
-          {isSuperAdmin ? "Global Complaints Analytics" : isStaff ? "My Task Metrics" : "My Ticket Overview"}
-        </Text>
-        <View style={styles.statsContainer}>
+        {/* Stats Grid matching exact Website Cards */}
+        <View style={styles.statsGrid}>
           <StatCard
-            title={isSuperAdmin ? "Total Complaints" : isStaff ? "Assigned Tasks" : "Total Raised"}
+            title={isSuperAdmin ? "GLOBAL TICKETS" : isStaff ? "ASSIGNED TASKS" : "TOTAL RAISED"}
             value={stats.total}
-            color={COLORS.primary}
-            icon={<Ionicons name="documents-outline" size={22} color={COLORS.primary} />}
+            color="#10B981"
+            icon={<Ionicons name="briefcase-outline" size={24} color="#10B981" />}
           />
           <StatCard
-            title="Pending Review"
+            title="PENDING REVIEW"
             value={stats.pending}
-            color={COLORS.warning}
-            icon={<Ionicons name="time-outline" size={22} color={COLORS.warning} />}
+            color="#F59E0B"
+            icon={<Ionicons name="time-outline" size={24} color="#F59E0B" />}
           />
           <StatCard
-            title="In Progress"
-            value={stats.inProgress}
-            color={COLORS.info}
-            icon={<Ionicons name="construct-outline" size={22} color={COLORS.info} />}
-          />
-          <StatCard
-            title="Resolved Tickets"
+            title="RESOLVED UNITS"
             value={stats.resolved}
-            color={COLORS.success}
-            icon={<Ionicons name="checkmark-circle-outline" size={22} color={COLORS.success} />}
+            color="#10B981"
+            icon={<Ionicons name="checkmark-circle-outline" size={24} color="#10B981" />}
+          />
+          <StatCard
+            title="ACTIVE PROGRESS"
+            value={stats.inProgress}
+            color="#06B6D4"
+            icon={<Ionicons name="flash-outline" size={24} color="#06B6D4" />}
           />
         </View>
 
-        {/* Recent Tickets Activity Section */}
-        <View style={styles.recentSection}>
-          <View style={styles.recentHead}>
-            <Text style={styles.sectionHeader}>Recent Tickets</Text>
-            <TouchableOpacity onPress={() => navigation.navigate(isSuperAdmin || isStaff ? "AllComplaintsTab" : "MyComplaintsTab")}>
-              <Text style={styles.viewAllText}>View All →</Text>
-            </TouchableOpacity>
-          </View>
+        {/* System Activity Feed */}
+        <View style={styles.sectionHeadRow}>
+          <Text style={styles.sectionTitle}>
+            {isSuperAdmin ? "System-wide Activity" : isStaff ? "Your Queue" : "My Recent Issues"}
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate(isSuperAdmin || isStaff ? "AllComplaintsTab" : "MyComplaintsTab")}>
+            <Text style={styles.textLink}>View All →</Text>
+          </TouchableOpacity>
+        </View>
 
+        <View style={styles.activityContainer}>
           {recentTickets.length > 0 ? (
             recentTickets.map((item) => (
               <TouchableOpacity
                 key={item._id}
-                style={styles.ticketCard}
+                style={styles.activityCard}
                 onPress={() => navigation.navigate(isSuperAdmin || isStaff ? "AllComplaintsTab" : "MyComplaintsTab")}
               >
-                <View style={styles.ticketHeader}>
-                  <Text style={styles.ticketType}>{item.complaintType}</Text>
+                <View style={styles.activityHeader}>
+                  <Text style={styles.activityType}>{item.complaintType}</Text>
                   <StatusBadge status={item.status} />
                 </View>
-                <Text style={styles.ticketDesc} numberOfLines={2}>{item.description}</Text>
-                <View style={styles.ticketMeta}>
-                  <Text style={styles.ticketMetaText}>📍 {item.blockName || "Block"} • Room {item.roomNumber || "N/A"}</Text>
-                </View>
+                <Text style={styles.activityDesc} numberOfLines={2}>{item.description}</Text>
+                <Text style={styles.activityMeta}>📍 {item.blockName || "Block"} • Room {item.roomNumber || "N/A"}</Text>
               </TouchableOpacity>
             ))
           ) : (
             <View style={styles.emptyCard}>
-              <Ionicons name="folder-open-outline" size={32} color={COLORS.textMuted} />
-              <Text style={styles.emptyText}>No recent complaint activity.</Text>
+              <Text style={styles.emptyIcon}>📂</Text>
+              <Text style={styles.emptyText}>No activity found in your record.</Text>
             </View>
           )}
         </View>
 
-        {/* Master Control Console ONLY for SuperAdmin & Admin */}
+        {/* System Control & Manage Console ONLY for SuperAdmin & Admin */}
         {(isSuperAdmin || isAdmin) && (
           <View style={styles.adminSection}>
             <View style={styles.adminSectionHeaderRow}>
-              <Text style={styles.sectionHeader}>{isSuperAdmin ? "SuperAdmin Control Panel" : "Admin Management Console"}</Text>
+              <Text style={styles.sectionTitle}>{isSuperAdmin ? "System Master Control" : "Admin Console"}</Text>
               <View style={styles.badgeCount}>
-                <Text style={styles.badgeCountText}>{isSuperAdmin ? "Full Access" : "Admin Access"}</Text>
+                <Text style={styles.badgeCountText}>{isSuperAdmin ? "SUPERADMIN" : "ADMIN"}</Text>
               </View>
             </View>
             <Text style={styles.adminSubText}>
@@ -265,8 +254,8 @@ export const DashboardScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate(item.screen)}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.adminTileIconBox, { backgroundColor: item.color + "20" }]}>
-                    <Ionicons name={item.icon} size={22} color={item.color} />
+                  <View style={[styles.adminTileIconBox, { backgroundColor: `${item.color}20` }]}>
+                    <Ionicons name={item.icon} size={20} color={item.color} />
                   </View>
                   <Text style={styles.adminTileText}>{item.title}</Text>
                 </TouchableOpacity>
@@ -288,151 +277,156 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     paddingBottom: SPACING.xl * 2,
   },
-  welcomeCard: {
-    backgroundColor: COLORS.card,
+  welcomeBanner: {
+    backgroundColor: "#052A1B",
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     marginBottom: SPACING.lg,
     ...SHADOWS.medium,
   },
-  welcomeTextGroup: {
-    flex: 1,
+  welcomeContent: {
+    justifyContent: "center",
   },
-  badgePill: {
-    backgroundColor: "rgba(16, 185, 129, 0.15)",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
+  controlPill: {
+    backgroundColor: "rgba(16, 185, 129, 0.12)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
     alignSelf: "flex-start",
-    marginBottom: 6,
+    marginBottom: SPACING.sm,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.25)",
   },
-  badgePillText: {
-    color: COLORS.primaryLight,
+  controlPillText: {
+    color: "#34D399",
     fontSize: 11,
-    fontWeight: "700",
-    textTransform: "uppercase",
+    fontWeight: "800",
+    letterSpacing: 1,
   },
-  welcomeName: {
-    color: COLORS.text,
-    fontSize: 20,
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  welcomeTitle: {
+    color: "#FFFFFF",
+    fontSize: 24,
     fontWeight: "800",
   },
-  welcomeSubtext: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-    marginTop: 4,
-    lineHeight: 16,
+  highlightName: {
+    color: "#34D399",
   },
-  welcomeIconBadge: {
-    width: 50,
-    height: 50,
-    borderRadius: RADIUS.md,
-    backgroundColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 10,
-    ...SHADOWS.medium,
-  },
-  sectionHeader: {
-    color: COLORS.text,
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: SPACING.sm,
+  welcomeSubtitle: {
+    color: "#9CA3AF",
+    fontSize: 13,
+    marginTop: 6,
+    lineHeight: 18,
   },
   actionGrid: {
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
     marginBottom: SPACING.lg,
   },
   actionBtn: {
     flex: 1,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm,
+    flexDirection: "row",
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     borderRadius: RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
+    gap: 6,
     ...SHADOWS.small,
+  },
+  actionBtnOutline: {
+    backgroundColor: "#052A1B",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.25)",
+  },
+  actionBtnSecondary: {
+    backgroundColor: "#052C1D",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.15)",
   },
   actionBtnTextDark: {
     color: "#020C07",
     fontSize: 13,
     fontWeight: "800",
-    marginTop: 4,
   },
   actionBtnTextLight: {
-    color: COLORS.text,
+    color: "#ECFDF5",
     fontSize: 13,
     fontWeight: "700",
-    marginTop: 4,
   },
-  statsContainer: {
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
     marginBottom: SPACING.lg,
   },
-  recentSection: {
-    marginBottom: SPACING.lg,
-  },
-  recentHead: {
+  sectionHeadRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.sm,
   },
-  viewAllText: {
-    color: COLORS.primaryLight,
+  sectionTitle: {
+    color: "#ECFDF5",
+    fontSize: 17,
+    fontWeight: "800",
+  },
+  textLink: {
+    color: "#34D399",
     fontSize: 13,
     fontWeight: "600",
   },
-  ticketCard: {
-    backgroundColor: COLORS.card,
+  activityContainer: {
+    marginBottom: SPACING.lg,
+  },
+  activityCard: {
+    backgroundColor: "#052A1B",
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.md,
     marginBottom: 10,
   },
-  ticketHeader: {
+  activityHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 6,
   },
-  ticketType: {
-    color: COLORS.text,
+  activityType: {
+    color: "#ECFDF5",
     fontSize: 14,
     fontWeight: "700",
   },
-  ticketDesc: {
-    color: COLORS.textMuted,
+  activityDesc: {
+    color: "#9CA3AF",
     fontSize: 12,
     marginBottom: 8,
   },
-  ticketMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  ticketMetaText: {
-    color: COLORS.textSecondary,
+  activityMeta: {
+    color: "#6EE7B7",
     fontSize: 11,
     fontWeight: "500",
   },
   emptyCard: {
-    backgroundColor: COLORS.card,
+    backgroundColor: "#052A1B",
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.lg,
     alignItems: "center",
     justifyContent: "center",
   },
+  emptyIcon: {
+    fontSize: 28,
+  },
   emptyText: {
-    color: COLORS.textMuted,
+    color: "#9CA3AF",
     fontSize: 13,
     marginTop: 6,
   },
@@ -441,7 +435,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(16, 185, 129, 0.04)",
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.md,
   },
   adminSectionHeaderRow: {
@@ -450,9 +444,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   adminSubText: {
-    color: COLORS.textMuted,
+    color: "#9CA3AF",
     fontSize: 12,
     marginBottom: SPACING.md,
+    marginTop: 2,
   },
   badgeCount: {
     backgroundColor: "rgba(16, 185, 129, 0.15)",
@@ -460,12 +455,13 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: RADIUS.full,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.25)",
   },
   badgeCountText: {
-    color: COLORS.primaryLight,
-    fontSize: 11,
-    fontWeight: "700",
+    color: "#34D399",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
   adminGrid: {
     flexDirection: "row",
@@ -474,26 +470,26 @@ const styles = StyleSheet.create({
   },
   adminTile: {
     width: "48%",
-    backgroundColor: COLORS.card,
+    backgroundColor: "#052A1B",
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.md,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
     ...SHADOWS.small,
   },
   adminTileIconBox: {
-    width: 36,
-    height: 36,
+    width: 34,
+    height: 34,
     borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   adminTileText: {
-    color: COLORS.text,
-    fontSize: 13,
+    color: "#ECFDF5",
+    fontSize: 12,
     fontWeight: "600",
     flex: 1,
   },

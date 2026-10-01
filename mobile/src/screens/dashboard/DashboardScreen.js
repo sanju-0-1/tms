@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthContext } from "../../context/AuthContext";
@@ -13,6 +14,7 @@ import { complaintService } from "../../services/api";
 import { COLORS, RADIUS, SHADOWS, SPACING } from "../../theme/theme";
 import { Header } from "../../components/Header";
 import { StatCard } from "../../components/StatCard";
+import { StatusBadge } from "../../components/StatusBadge";
 import { Ionicons } from "@expo/vector-icons";
 
 export const DashboardScreen = ({ navigation }) => {
@@ -24,42 +26,86 @@ export const DashboardScreen = ({ navigation }) => {
     resolved: 0,
     rejected: 0,
   });
+  const [recentTickets, setRecentTickets] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchDashboardData = async () => {
+  const isSuperAdmin = user?.role === "SuperAdmin";
+  const isAdmin = user?.role === "Admin";
+  const isStaff = user?.role === "Staff";
+  const isUser = !isSuperAdmin && !isAdmin && !isStaff;
+
+  const fetchDashboardData = useCallback(async () => {
     try {
       setRefreshing(true);
-      const res = await complaintService.getStats();
-      if (res.data) {
-        setStats(res.data);
+      const [statsRes, complaintsRes] = await Promise.all([
+        complaintService.getStats().catch(() => ({ data: {} })),
+        complaintService.getAll().catch(() => ({ data: [] })),
+      ]);
+
+      const all = complaintsRes.data?.complaints || complaintsRes.data || [];
+      const userId = user?.id || user?._id;
+
+      let filtered = all;
+      if (isUser) {
+        // Regular users only see their own tickets
+        filtered = all.filter((c) => {
+          const createdById = c.createdBy?._id || c.createdBy;
+          return String(createdById) === String(userId);
+        });
+      } else if (isStaff) {
+        // Staff see tickets assigned to them
+        filtered = all.filter((c) => {
+          const assignedToId = c.assignedTo?._id || c.assignedTo;
+          return String(assignedToId) === String(userId);
+        });
+      }
+
+      setRecentTickets(filtered.slice(0, 4));
+
+      if (isUser || isStaff) {
+        setStats({
+          total: filtered.length,
+          pending: filtered.filter((c) => c.status === "Pending").length,
+          inProgress: filtered.filter((c) => ["In-Progress", "Assigned"].includes(c.status)).length,
+          resolved: filtered.filter((c) => ["Resolved", "Completed"].includes(c.status)).length,
+          rejected: filtered.filter((c) => c.status === "Rejected").length,
+        });
+      } else if (statsRes.data) {
+        setStats(statsRes.data);
       }
     } catch (err) {
-      console.warn("Failed to load dashboard stats", err);
+      console.warn("Failed to load dashboard data", err);
     } finally {
       setRefreshing(false);
     }
-  };
+  }, [user, isUser, isStaff]);
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
-  const isAdminOrSuper = user?.role === "Admin" || user?.role === "SuperAdmin";
-  const canManageAll = isAdminOrSuper || user?.role === "Staff";
-
-  const adminMasters = [
+  // Master options based on role
+  const superAdminMasters = [
     { title: "Departments", icon: "business", screen: "Departments", color: "#10B981" },
     { title: "Programmes", icon: "school", screen: "Programmes", color: "#14B8A6" },
     { title: "Blocks", icon: "cube", screen: "Blocks", color: "#0D9488" },
     { title: "Rooms", icon: "keypad", screen: "Rooms", color: "#34D399" },
     { title: "Roles", icon: "shield-checkmark", screen: "Roles", color: "#F59E0B" },
     { title: "Users", icon: "people", screen: "Users", color: "#3B82F6" },
-    { title: "Analytics & Reports", icon: "bar-chart", screen: "Reports", color: "#8B5CF6" },
+    { title: "Reports", icon: "bar-chart", screen: "Reports", color: "#8B5CF6" },
   ];
+
+  const adminMasters = [
+    { title: "Departments", icon: "business", screen: "Departments", color: "#10B981" },
+    { title: "Users", icon: "people", screen: "Users", color: "#3B82F6" },
+    { title: "Reports", icon: "bar-chart", screen: "Reports", color: "#8B5CF6" },
+  ];
+
+  const masterList = isSuperAdmin ? superAdminMasters : isAdmin ? adminMasters : [];
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title="Ticket & Facility Portal" />
+      <Header title={isSuperAdmin ? "System Control" : isStaff ? "Field Operations" : "Member Hub"} />
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
@@ -71,52 +117,79 @@ export const DashboardScreen = ({ navigation }) => {
           />
         }
       >
-        {/* Welcome Banner with Emerald Gradient Styling */}
+        {/* Customized Welcome Banner */}
         <View style={styles.welcomeCard}>
           <View style={styles.welcomeTextGroup}>
-            <Text style={styles.welcomeGreeting}>Welcome back 👋</Text>
-            <Text style={styles.welcomeName}>{user?.name || "User"}</Text>
-            <View style={styles.roleTag}>
-              <Ionicons name="shield-outline" size={12} color={COLORS.primaryLight} style={{ marginRight: 4 }} />
-              <Text style={styles.welcomeRole}>{user?.role || "Member"}</Text>
+            <View style={styles.badgePill}>
+              <Text style={styles.badgePillText}>
+                {isSuperAdmin ? "System Admin" : isAdmin ? "Administrator" : isStaff ? "Field Technician" : "Member Portal"}
+              </Text>
             </View>
+            <Text style={styles.welcomeName}>Hello, {user?.name || "User"}</Text>
+            <Text style={styles.welcomeSubtext}>
+              {isSuperAdmin
+                ? "Global system analytics & master control."
+                : isAdmin
+                ? "Department management & complaint oversight."
+                : isStaff
+                ? "Manage your assigned tasks and resolutions."
+                : "Track your tickets and facility feedback."}
+            </Text>
           </View>
           <View style={styles.welcomeIconBadge}>
-            <Ionicons name="sparkles" size={30} color="#020C07" />
+            <Ionicons
+              name={isSuperAdmin ? "server-outline" : isStaff ? "construct-outline" : "ticket-outline"}
+              size={28}
+              color="#020C07"
+            />
           </View>
         </View>
 
-        {/* Primary Action Buttons */}
+        {/* Action Grid based on Role */}
         <Text style={styles.sectionHeader}>Quick Actions</Text>
         <View style={styles.actionGrid}>
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: COLORS.primary }]}
-            onPress={() => navigation.navigate("NewComplaint")}
-          >
-            <Ionicons name="add-circle" size={26} color="#020C07" />
-            <Text style={styles.actionBtnTextDark}>Lodge Ticket</Text>
-          </TouchableOpacity>
+          {(isUser || isSuperAdmin || isAdmin) && (
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: COLORS.primary }]}
+              onPress={() => navigation.navigate("NewComplaint")}
+            >
+              <Ionicons name="add-circle" size={24} color="#020C07" />
+              <Text style={styles.actionBtnTextDark}>Lodge Ticket</Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.cardBorder }]}
             onPress={() => navigation.navigate("MyComplaintsTab")}
           >
-            <Ionicons name="ticket-outline" size={26} color={COLORS.primaryLight} />
-            <Text style={styles.actionBtnTextLight}>My Tickets</Text>
+            <Ionicons name="ticket-outline" size={24} color={COLORS.primaryLight} />
+            <Text style={styles.actionBtnTextLight}>{isStaff ? "Assigned Queue" : "My Tickets"}</Text>
           </TouchableOpacity>
+
+          {(isSuperAdmin || isAdmin || isStaff) && (
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: COLORS.secondary }]}
+              onPress={() => navigation.navigate("AllComplaintsTab")}
+            >
+              <Ionicons name="albums" size={24} color="#FFF" />
+              <Text style={styles.actionBtnTextLight}>All Tickets</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* Complaints Analytics Overview */}
-        <Text style={styles.sectionHeader}>Complaints Analytics</Text>
+        {/* Complaints Analytics Breakdown */}
+        <Text style={styles.sectionHeader}>
+          {isSuperAdmin ? "Global Complaints Analytics" : isStaff ? "My Task Metrics" : "My Ticket Overview"}
+        </Text>
         <View style={styles.statsContainer}>
           <StatCard
-            title="Total Complaints"
+            title={isSuperAdmin ? "Total Complaints" : isStaff ? "Assigned Tasks" : "Total Raised"}
             value={stats.total}
             color={COLORS.primary}
             icon={<Ionicons name="documents-outline" size={22} color={COLORS.primary} />}
           />
           <StatCard
-            title="Pending Actions"
+            title="Pending Review"
             value={stats.pending}
             color={COLORS.warning}
             icon={<Ionicons name="time-outline" size={22} color={COLORS.warning} />}
@@ -135,19 +208,57 @@ export const DashboardScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Full Admin & SuperAdmin Control Panel */}
-        {isAdminOrSuper && (
+        {/* Recent Tickets Activity Section */}
+        <View style={styles.recentSection}>
+          <View style={styles.recentHead}>
+            <Text style={styles.sectionHeader}>Recent Tickets</Text>
+            <TouchableOpacity onPress={() => navigation.navigate(isSuperAdmin || isStaff ? "AllComplaintsTab" : "MyComplaintsTab")}>
+              <Text style={styles.viewAllText}>View All →</Text>
+            </TouchableOpacity>
+          </View>
+
+          {recentTickets.length > 0 ? (
+            recentTickets.map((item) => (
+              <TouchableOpacity
+                key={item._id}
+                style={styles.ticketCard}
+                onPress={() => navigation.navigate(isSuperAdmin || isStaff ? "AllComplaintsTab" : "MyComplaintsTab")}
+              >
+                <View style={styles.ticketHeader}>
+                  <Text style={styles.ticketType}>{item.complaintType}</Text>
+                  <StatusBadge status={item.status} />
+                </View>
+                <Text style={styles.ticketDesc} numberOfLines={2}>{item.description}</Text>
+                <View style={styles.ticketMeta}>
+                  <Text style={styles.ticketMetaText}>📍 {item.blockName || "Block"} • Room {item.roomNumber || "N/A"}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyCard}>
+              <Ionicons name="folder-open-outline" size={32} color={COLORS.textMuted} />
+              <Text style={styles.emptyText}>No recent complaint activity.</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Master Control Console ONLY for SuperAdmin & Admin */}
+        {(isSuperAdmin || isAdmin) && (
           <View style={styles.adminSection}>
             <View style={styles.adminSectionHeaderRow}>
-              <Text style={styles.sectionHeader}>Admin Master Control Console</Text>
+              <Text style={styles.sectionHeader}>{isSuperAdmin ? "SuperAdmin Control Panel" : "Admin Management Console"}</Text>
               <View style={styles.badgeCount}>
-                <Text style={styles.badgeCountText}>Full Access</Text>
+                <Text style={styles.badgeCountText}>{isSuperAdmin ? "Full Access" : "Admin Access"}</Text>
               </View>
             </View>
-            <Text style={styles.adminSubText}>Manage all institution masters, user permissions, and system reports.</Text>
-            
+            <Text style={styles.adminSubText}>
+              {isSuperAdmin
+                ? "Manage system architecture, user roles, facility masters, and audit reports."
+                : "Manage department users and monitor complaint resolution analytics."}
+            </Text>
+
             <View style={styles.adminGrid}>
-              {adminMasters.map((item, index) => (
+              {masterList.map((item, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.adminTile}
@@ -160,19 +271,6 @@ export const DashboardScreen = ({ navigation }) => {
                   <Text style={styles.adminTileText}>{item.title}</Text>
                 </TouchableOpacity>
               ))}
-              
-              {canManageAll && (
-                <TouchableOpacity
-                  style={[styles.adminTile, styles.highlightTile]}
-                  onPress={() => navigation.navigate("AllComplaintsTab")}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.adminTileIconBox, { backgroundColor: COLORS.primary + "30" }]}>
-                    <Ionicons name="options-outline" size={22} color={COLORS.primary} />
-                  </View>
-                  <Text style={[styles.adminTileText, { color: COLORS.primaryLight, fontWeight: "700" }]}>All Complaints Console</Text>
-                </TouchableOpacity>
-              )}
             </View>
           </View>
         )}
@@ -205,52 +303,58 @@ const styles = StyleSheet.create({
   welcomeTextGroup: {
     flex: 1,
   },
-  welcomeGreeting: {
-    color: COLORS.textSecondary,
-    fontSize: 13,
-    fontWeight: "500",
+  badgePill: {
+    backgroundColor: "rgba(16, 185, 129, 0.15)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+    alignSelf: "flex-start",
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  badgePillText: {
+    color: COLORS.primaryLight,
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
   },
   welcomeName: {
     color: COLORS.text,
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "800",
-    marginVertical: 4,
   },
-  roleTag: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 2,
-  },
-  welcomeRole: {
-    color: COLORS.primaryLight,
-    fontSize: 13,
-    fontWeight: "700",
+  welcomeSubtext: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    marginTop: 4,
+    lineHeight: 16,
   },
   welcomeIconBadge: {
-    width: 52,
-    height: 52,
+    width: 50,
+    height: 50,
     borderRadius: RADIUS.md,
     backgroundColor: COLORS.primary,
     alignItems: "center",
-    justify.content: "center",
+    justifyContent: "center",
+    marginLeft: 10,
     ...SHADOWS.medium,
   },
   sectionHeader: {
     color: COLORS.text,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "700",
     marginBottom: SPACING.sm,
-    marginTop: SPACING.xs,
   },
   actionGrid: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
     marginBottom: SPACING.lg,
   },
   actionBtn: {
     flex: 1,
     paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
@@ -258,21 +362,82 @@ const styles = StyleSheet.create({
   },
   actionBtnTextDark: {
     color: "#020C07",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "800",
-    marginTop: 6,
+    marginTop: 4,
   },
   actionBtnTextLight: {
     color: COLORS.text,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
-    marginTop: 6,
+    marginTop: 4,
   },
   statsContainer: {
     marginBottom: SPACING.lg,
   },
+  recentSection: {
+    marginBottom: SPACING.lg,
+  },
+  recentHead: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: SPACING.xs,
+  },
+  viewAllText: {
+    color: COLORS.primaryLight,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  ticketCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    padding: SPACING.md,
+    marginBottom: 10,
+  },
+  ticketHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  ticketType: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  ticketDesc: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  ticketMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  ticketMetaText: {
+    color: COLORS.textSecondary,
+    fontSize: 11,
+    fontWeight: "500",
+  },
+  emptyCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    padding: SPACING.lg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    color: COLORS.textMuted,
+    fontSize: 13,
+    marginTop: 6,
+  },
   adminSection: {
-    marginTop: SPACING.sm,
+    marginTop: SPACING.xs,
     backgroundColor: "rgba(16, 185, 129, 0.04)",
     borderRadius: RADIUS.lg,
     borderWidth: 1,
@@ -319,14 +484,9 @@ const styles = StyleSheet.create({
     gap: 10,
     ...SHADOWS.small,
   },
-  highlightTile: {
-    width: "100%",
-    borderColor: COLORS.primary,
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-  },
   adminTileIconBox: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",

@@ -1,71 +1,73 @@
 export const COLORS = {
-  // Exact Deep Forest Emerald Theme from tms12 Website
-  primary: '#10B981',
-  primaryDark: '#047857',
-  primaryLight: '#34D399',
-  accent: '#06B6D4',
-  secondary: '#052C1D',
-  accentWarm: '#F59E0B',
+  // Deep Emerald & Teal Theme (Identical to Website index.css & App.css)
+  primary: '#10b981',
+  primaryDark: '#059669',
+  primaryLight: '#6ee7b7',
+  primaryMint: '#a7f3d0',
+  accent: '#14b8a6',
+  accentDark: '#0d9488',
+  accentWarm: '#f59e0b',
 
-  background: '#020F09',
-  card: '#052A1B',
-  cardBorder: 'rgba(16, 185, 129, 0.22)',
-  inputBg: 'rgba(16, 185, 129, 0.06)',
+  background: '#020c07',
+  card: '#0a2819',
+  cardBorder: 'rgba(16, 185, 129, 0.18)',
+  inputBg: 'rgba(16, 185, 129, 0.04)',
 
-  text: '#ECFDF5',
-  textSecondary: '#6EE7B7',
-  textMuted: '#9CA3AF',
+  text: '#ecfdf5',
+  textSecondary: '#6ee7b7',
+  textMuted: '#94a3b8',
 
-  success: '#10B981',
-  successLight: 'rgba(16, 185, 129, 0.18)',
-  warning: '#F59E0B',
-  warningLight: 'rgba(245, 158, 11, 0.18)',
-  info: '#06B6D4',
-  infoLight: 'rgba(6, 182, 212, 0.18)',
-  danger: '#EF4444',
-  dangerLight: 'rgba(239, 68, 68, 0.18)',
+  success: '#10b981',
+  successLight: 'rgba(16, 185, 129, 0.15)',
+  warning: '#f59e0b',
+  warningLight: 'rgba(245, 158, 11, 0.15)',
+  info: '#60a5fa',
+  infoLight: 'rgba(96, 165, 250, 0.15)',
+  danger: '#ef4444',
+  dangerLight: 'rgba(239, 68, 68, 0.15)',
 
-  border: 'rgba(16, 185, 129, 0.2)',
+  border: 'rgba(16, 185, 129, 0.18)',
   divider: 'rgba(16, 185, 129, 0.12)',
 
-  // Status Colors
+  // Status Colors (Matching Website Status Pills)
   status: {
-    Pending: { text: '#F59E0B', bg: 'rgba(245, 158, 11, 0.18)', border: '#F59E0B' },
-    In_Progress: { text: '#06B6D4', bg: 'rgba(6, 182, 212, 0.18)', border: '#06B6D4' },
-    Resolved: { text: '#10B981', bg: 'rgba(16, 185, 129, 0.18)', border: '#10B981' },
-    Rejected: { text: '#EF4444', bg: 'rgba(239, 68, 68, 0.18)', border: '#EF4444' },
+    Pending: { text: '#fbbf24', bg: 'rgba(251, 191, 36, 0.12)', border: '#fbbf24' },
+    In_Progress: { text: '#60a5fa', bg: 'rgba(96, 165, 250, 0.12)', border: '#60a5fa' },
+    Resolved: { text: '#34d399', bg: 'rgba(52, 211, 153, 0.12)', border: '#34d399' },
+    Completed: { text: '#34d399', bg: 'rgba(52, 211, 153, 0.12)', border: '#34d399' },
+    Rejected: { text: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444' },
   },
 
   // Priority Colors
   priority: {
-    Low: { text: '#10B981', bg: 'rgba(16, 185, 129, 0.18)' },
-    Medium: { text: '#F59E0B', bg: 'rgba(245, 158, 11, 0.18)' },
-    High: { text: '#F97316', bg: 'rgba(249, 115, 22, 0.18)' },
-    Urgent: { text: '#EF4444', bg: 'rgba(239, 68, 68, 0.18)' },
+    Low: { text: '#34d399', bg: 'rgba(52, 211, 153, 0.12)' },
+    Medium: { text: '#fbbf24', bg: 'rgba(251, 191, 36, 0.12)' },
+    High: { text: '#f97316', bg: 'rgba(249, 115, 22, 0.12)' },
+    Urgent: { text: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)' },
   }
 };
 
 export const SHADOWS = {
   small: {
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3.84,
-    elevation: 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
   },
   medium: {
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 6,
   },
   large: {
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 8 },
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowRadius: 20,
+    elevation: 10,
   }
 };
 

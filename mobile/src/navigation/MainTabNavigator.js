@@ -19,14 +19,14 @@ export const MainTabNavigator = () => {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: COLORS.card,
-          borderTopColor: COLORS.cardBorder,
+          backgroundColor: "#031e14",
+          borderTopColor: "rgba(16, 185, 129, 0.18)",
           borderTopWidth: 1,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: COLORS.primaryLight,
+        tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;

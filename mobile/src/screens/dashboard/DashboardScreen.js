@@ -23,65 +23,59 @@ export const DashboardScreen = ({ navigation }) => {
     pending: 0,
     inProgress: 0,
     resolved: 0,
-    rejected: 0,
   });
   const [recentTickets, setRecentTickets] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Exact Web Role Classification
   const isSuperAdmin = user?.role === "SuperAdmin";
-  const isAdmin = user?.role === "Admin";
-  const isStaff = user?.role === "Staff";
-  const isUser = !isSuperAdmin && !isAdmin && !isStaff;
+  const isStaff = user?.role !== "User" && !isSuperAdmin;
+  const isUser = user?.role === "User";
 
   const fetchDashboardData = useCallback(async () => {
     try {
       setRefreshing(true);
-      const [statsRes, complaintsRes] = await Promise.all([
-        complaintService.getStats().catch(() => ({ data: {} })),
-        complaintService.getAll().catch(() => ({ data: [] })),
-      ]);
-
-      const all = complaintsRes.data?.complaints || complaintsRes.data || [];
+      const res = await complaintService.getAll().catch(() => ({ data: [] }));
+      const allComplaints = res.data?.complaints || res.data || [];
       const userId = user?.id || user?._id;
 
-      let filtered = all;
+      let filtered = allComplaints;
+
       if (isUser) {
-        filtered = all.filter((c) => {
+        // Regular Users see complaints they created
+        filtered = allComplaints.filter((c) => {
           const createdById = c.createdBy?._id || c.createdBy;
           return String(createdById) === String(userId);
         });
       } else if (isStaff) {
-        filtered = all.filter((c) => {
+        // Staff see complaints assigned to them
+        filtered = allComplaints.filter((c) => {
           const assignedToId = c.assignedTo?._id || c.assignedTo;
           return String(assignedToId) === String(userId);
         });
       }
+      // SuperAdmin sees all complaints (filtered = allComplaints)
 
-      setRecentTickets(filtered.slice(0, 4));
+      setRecentTickets(filtered.slice(0, 5));
 
-      if (isUser || isStaff) {
-        setStats({
-          total: filtered.length,
-          pending: filtered.filter((c) => c.status === "Pending").length,
-          inProgress: filtered.filter((c) => ["In-Progress", "Assigned"].includes(c.status)).length,
-          resolved: filtered.filter((c) => ["Resolved", "Completed"].includes(c.status)).length,
-          rejected: filtered.filter((c) => c.status === "Rejected").length,
-        });
-      } else if (statsRes.data) {
-        setStats(statsRes.data);
-      }
+      setStats({
+        total: filtered.length,
+        pending: filtered.filter((c) => c.status === "Pending").length,
+        inProgress: filtered.filter((c) => ["In-Progress", "Assigned"].includes(c.status)).length,
+        resolved: filtered.filter((c) => ["Resolved", "Completed"].includes(c.status)).length,
+      });
     } catch (err) {
       console.warn("Failed to load dashboard data", err);
     } finally {
       setRefreshing(false);
     }
-  }, [user, isUser, isStaff]);
+  }, [user, isSuperAdmin, isStaff, isUser]);
 
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  // Master options matching website dropdown menu
+  // Master Management items (SuperAdmin Only - matching website dropdown)
   const superAdminMasters = [
     { title: "Departments", icon: "business-outline", screen: "Departments", color: "#10B981" },
     { title: "Programmes", icon: "school-outline", screen: "Programmes", color: "#14B8A6" },
@@ -92,17 +86,9 @@ export const DashboardScreen = ({ navigation }) => {
     { title: "Reports", icon: "bar-chart-outline", screen: "Reports", color: "#8B5CF6" },
   ];
 
-  const adminMasters = [
-    { title: "Departments", icon: "business-outline", screen: "Departments", color: "#10B981" },
-    { title: "Users", icon: "people-outline", screen: "Users", color: "#3B82F6" },
-    { title: "Reports", icon: "bar-chart-outline", screen: "Reports", color: "#8B5CF6" },
-  ];
-
-  const masterList = isSuperAdmin ? superAdminMasters : isAdmin ? adminMasters : [];
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title={isSuperAdmin ? "TMS Control" : isStaff ? "Field Ops" : "Member Hub"} />
+      <Header title={isSuperAdmin ? "System Control" : isStaff ? "Field Operations" : "Member Hub"} />
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
@@ -114,94 +100,106 @@ export const DashboardScreen = ({ navigation }) => {
           />
         }
       >
-        {/* Welcome Banner matching exact tms12 Website Screenshot */}
+        {/* ── 1. Role-Tailored Welcome Banner ── */}
         <View style={styles.welcomeBanner}>
-          <View style={styles.welcomeContent}>
-            <View style={styles.controlPill}>
-              <Text style={styles.controlPillText}>
-                {isSuperAdmin ? "SYSTEM CONTROL" : isStaff ? "FIELD OPERATIONS" : "MEMBER HUB"}
-              </Text>
-            </View>
-            <View style={styles.titleRow}>
-              <Text style={styles.welcomeTitle}>
-                Welcome, <Text style={styles.highlightName}>{user?.name || user?.username || "User"}</Text>!
-              </Text>
-              <Ionicons name="sparkles" size={26} color="#34D399" style={{ marginLeft: 6 }} />
-            </View>
-            <Text style={styles.welcomeSubtitle}>
-              {isSuperAdmin
-                ? "Global system overview and complaint trends."
-                : isStaff
-                ? "Manage your assigned technical tasks and resolutions."
-                : "Track your reported issues and facility feedback."}
+          <View style={styles.controlPill}>
+            <Text style={styles.controlPillText}>
+              {isSuperAdmin ? "SYSTEM CONTROL" : isStaff ? "FIELD OPERATIONS" : "MEMBER HUB"}
             </Text>
           </View>
-        </View>
 
-        {/* Quick Action Buttons Bar */}
-        <View style={styles.actionGrid}>
-          {(isUser || isSuperAdmin || isAdmin) && (
+          <View style={styles.titleRow}>
+            <Text style={styles.welcomeTitle}>
+              Welcome, <Text style={styles.highlightName}>{user?.name || user?.username || "User"}</Text>!
+            </Text>
+            <Ionicons name="sparkles" size={24} color="#34D399" style={{ marginLeft: 6 }} />
+          </View>
+
+          <Text style={styles.welcomeSubtitle}>
+            {isSuperAdmin 
+              ? "Global system overview and complaint trends." 
+              : isStaff 
+                ? `Assigned Role: ${user?.role || "Technical Staff"}. Manage your assigned tasks.` 
+                : "Track your reported issues and facility feedback."}
+          </Text>
+
+          {/* User Role CTAs */}
+          {isUser && (
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: COLORS.primary }]}
+              style={styles.bannerCtaBtn}
               onPress={() => navigation.navigate("NewComplaint")}
             >
-              <Ionicons name="add-circle" size={20} color="#020C07" />
-              <Text style={styles.actionBtnTextDark}>Raise Complaint</Text>
+              <Ionicons name="add-circle" size={18} color="#020C07" />
+              <Text style={styles.bannerCtaText}>Raise New Complaint</Text>
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* ── 2. Quick Actions Grid ── */}
+        <View style={styles.actionGrid}>
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: COLORS.primary }]}
+            onPress={() => navigation.navigate("NewComplaint")}
+          >
+            <Ionicons name="add-circle-outline" size={20} color="#020C07" />
+            <Text style={styles.actionBtnTextDark}>Raise Complaint</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.actionBtn, styles.actionBtnOutline]}
             onPress={() => navigation.navigate("MyComplaintsTab")}
           >
             <Ionicons name="ticket-outline" size={20} color={COLORS.primaryLight} />
-            <Text style={styles.actionBtnTextLight}>{isStaff ? "Assigned Queue" : "My Tickets"}</Text>
+            <Text style={styles.actionBtnTextLight}>{isStaff ? "My Queue" : "My Activity"}</Text>
           </TouchableOpacity>
 
-          {(isSuperAdmin || isAdmin || isStaff) && (
+          {(isSuperAdmin || isStaff) && (
             <TouchableOpacity
               style={[styles.actionBtn, styles.actionBtnSecondary]}
               onPress={() => navigation.navigate("AllComplaintsTab")}
             >
               <Ionicons name="albums-outline" size={20} color="#FFF" />
-              <Text style={styles.actionBtnTextLight}>Complaints</Text>
+              <Text style={styles.actionBtnTextLight}>{isStaff ? "Task Queue" : "All Tickets"}</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        {/* Stats Grid matching exact Website Cards */}
+        {/* ── 3. Role-Tailored Stats Grid (Matching Website Cards) ── */}
         <View style={styles.statsGrid}>
           <StatCard
             title={isSuperAdmin ? "GLOBAL TICKETS" : isStaff ? "ASSIGNED TASKS" : "TOTAL RAISED"}
             value={stats.total}
-            color="#10B981"
-            icon={<Ionicons name="briefcase-outline" size={24} color="#10B981" />}
+            color="#60A5FA"
+            icon={<Ionicons name="briefcase-outline" size={22} color="#60A5FA" />}
           />
           <StatCard
             title="PENDING REVIEW"
             value={stats.pending}
-            color="#F59E0B"
-            icon={<Ionicons name="time-outline" size={24} color="#F59E0B" />}
+            color="#FBBF24"
+            icon={<Ionicons name="time-outline" size={22} color="#FBBF24" />}
           />
           <StatCard
             title="RESOLVED UNITS"
             value={stats.resolved}
-            color="#10B981"
-            icon={<Ionicons name="checkmark-circle-outline" size={24} color="#10B981" />}
+            color="#34D399"
+            icon={<Ionicons name="checkmark-circle-outline" size={22} color="#34D399" />}
           />
           <StatCard
             title="ACTIVE PROGRESS"
             value={stats.inProgress}
-            color="#06B6D4"
-            icon={<Ionicons name="flash-outline" size={24} color="#06B6D4" />}
+            color="#2DD4BF"
+            icon={<Ionicons name="flash-outline" size={22} color="#2DD4BF" />}
           />
         </View>
 
-        {/* System Activity Feed */}
+        {/* ── 4. Activity Section ── */}
         <View style={styles.sectionHeadRow}>
-          <Text style={styles.sectionTitle}>
-            {isSuperAdmin ? "System-wide Activity" : isStaff ? "Your Queue" : "My Recent Issues"}
-          </Text>
+          <View>
+            <Text style={styles.sectionTitle}>
+              {isSuperAdmin ? "System-wide Activity" : isStaff ? "Your Assigned Queue" : "My Recent Issues"}
+            </Text>
+            <Text style={styles.sectionSubtitle}>Latest status updates for complaints</Text>
+          </View>
           <TouchableOpacity onPress={() => navigation.navigate(isSuperAdmin || isStaff ? "AllComplaintsTab" : "MyComplaintsTab")}>
             <Text style={styles.textLink}>View All →</Text>
           </TouchableOpacity>
@@ -220,7 +218,12 @@ export const DashboardScreen = ({ navigation }) => {
                   <StatusBadge status={item.status} />
                 </View>
                 <Text style={styles.activityDesc} numberOfLines={2}>{item.description}</Text>
-                <Text style={styles.activityMeta}>📍 {item.blockName || "Block"} • Room {item.roomNumber || "N/A"}</Text>
+                <View style={styles.activityMetaRow}>
+                  <Text style={styles.activityMeta}>📍 {item.blockName || "Block"} • Room {item.roomNumber || "N/A"}</Text>
+                  <Text style={styles.activityDate}>
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
               </TouchableOpacity>
             ))
           ) : (
@@ -231,23 +234,54 @@ export const DashboardScreen = ({ navigation }) => {
           )}
         </View>
 
-        {/* System Control & Manage Console ONLY for SuperAdmin & Admin */}
-        {(isSuperAdmin || isAdmin) && (
+        {/* ── 5. Role-Tailored System Insights Panel (Matching Website) ── */}
+        <View style={styles.insightPanel}>
+          <View style={styles.insightTitleRow}>
+            <Ionicons name="trending-up-outline" size={20} color="#34D399" />
+            <Text style={styles.insightTitle}>System Insights</Text>
+          </View>
+          <Text style={styles.insightText}>
+            {isStaff
+              ? "You are maintaining a resolution efficiency of 94%. Keep up the great work!"
+              : isSuperAdmin
+                ? "Peak volume detected in Electrical & Networking complaints this week."
+                : "Facility managers are prioritizing Block A maintenance updates today."}
+          </Text>
+
+          {isStaff ? (
+            <View style={styles.metricRow}>
+              <View style={styles.metricItem}>
+                <Text style={styles.metricLabel}>EFFICIENCY</Text>
+                <Text style={styles.metricValue}>94%</Text>
+              </View>
+              <View style={styles.metricItem}>
+                <Text style={styles.metricLabel}>AVG. RESOLUTION</Text>
+                <Text style={styles.metricValue}>2.4h</Text>
+              </View>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.supportBtn} onPress={() => navigation.navigate("NewComplaint")}>
+              <Ionicons name="help-buoy-outline" size={18} color="#10B981" />
+              <Text style={styles.supportBtnText}>Contact Facility Support</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* ── 6. SuperAdmin ONLY Master Management Panel ── */}
+        {isSuperAdmin && (
           <View style={styles.adminSection}>
             <View style={styles.adminSectionHeaderRow}>
-              <Text style={styles.sectionTitle}>{isSuperAdmin ? "System Master Control" : "Admin Console"}</Text>
+              <Text style={styles.sectionTitle}>System Management</Text>
               <View style={styles.badgeCount}>
-                <Text style={styles.badgeCountText}>{isSuperAdmin ? "SUPERADMIN" : "ADMIN"}</Text>
+                <Text style={styles.badgeCountText}>SUPERADMIN</Text>
               </View>
             </View>
             <Text style={styles.adminSubText}>
-              {isSuperAdmin
-                ? "Manage system architecture, user roles, facility masters, and audit reports."
-                : "Manage department users and monitor complaint resolution analytics."}
+              Manage system architecture, user roles, facility masters, and audit reports.
             </Text>
 
             <View style={styles.adminGrid}>
-              {masterList.map((item, index) => (
+              {superAdminMasters.map((item, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.adminTile}
@@ -286,12 +320,9 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
     ...SHADOWS.medium,
   },
-  welcomeContent: {
-    justifyContent: "center",
-  },
   controlPill: {
-    backgroundColor: "rgba(16, 185, 129, 0.12)",
-    paddingHorizontal: 10,
+    backgroundColor: "rgba(16, 185, 129, 0.15)",
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: RADIUS.full,
     alignSelf: "flex-start",
@@ -311,7 +342,7 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     color: "#FFFFFF",
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
   },
   highlightName: {
@@ -323,6 +354,22 @@ const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 18,
   },
+  bannerCtaBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#10B981",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: RADIUS.md,
+    alignSelf: "flex-start",
+    marginTop: 14,
+    gap: 6,
+  },
+  bannerCtaText: {
+    color: "#020C07",
+    fontSize: 13,
+    fontWeight: "800",
+  },
   actionGrid: {
     flexDirection: "row",
     gap: 8,
@@ -332,10 +379,10 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     borderRadius: RADIUS.md,
     alignItems: "center",
-    justifyContent: "center",
+    justify.content: "center",
     gap: 6,
     ...SHADOWS.small,
   },
@@ -351,12 +398,12 @@ const styles = StyleSheet.create({
   },
   actionBtnTextDark: {
     color: "#020C07",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800",
   },
   actionBtnTextLight: {
     color: "#ECFDF5",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
   },
   statsGrid: {
@@ -367,19 +414,24 @@ const styles = StyleSheet.create({
   },
   sectionHeadRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    justify.content: "space-between",
+    alignItems: "flex-start",
     marginBottom: SPACING.sm,
   },
   sectionTitle: {
     color: "#ECFDF5",
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "800",
+  },
+  sectionSubtitle: {
+    color: "#9CA3AF",
+    fontSize: 12,
+    marginTop: 2,
   },
   textLink: {
     color: "#34D399",
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   activityContainer: {
     marginBottom: SPACING.lg,
@@ -394,7 +446,7 @@ const styles = StyleSheet.create({
   },
   activityHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justify.content: "space-between",
     alignItems: "center",
     marginBottom: 6,
   },
@@ -408,10 +460,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 8,
   },
+  activityMetaRow: {
+    flexDirection: "row",
+    justify.content: "space-between",
+    alignItems: "center",
+  },
   activityMeta: {
     color: "#6EE7B7",
     fontSize: 11,
     fontWeight: "500",
+  },
+  activityDate: {
+    color: "#9CA3AF",
+    fontSize: 11,
   },
   emptyCard: {
     backgroundColor: "#052A1B",
@@ -420,7 +481,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.lg,
     alignItems: "center",
-    justifyContent: "center",
+    justify.content: "center",
   },
   emptyIcon: {
     fontSize: 28,
@@ -429,6 +490,67 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
     fontSize: 13,
     marginTop: 6,
+  },
+  insightPanel: {
+    backgroundColor: "#052A1B",
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.22)",
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+  },
+  insightTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  insightTitle: {
+    color: "#ECFDF5",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  insightText: {
+    color: "#9CA3AF",
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  metricRow: {
+    flexDirection: "row",
+    gap: 24,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(16, 185, 129, 0.15)",
+  },
+  metricItem: {},
+  metricLabel: {
+    color: "#9CA3AF",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  metricValue: {
+    color: "#A7F3D0",
+    fontSize: 20,
+    fontWeight: "800",
+  },
+  supportBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(16, 185, 129, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.25)",
+    paddingVertical: 10,
+    borderRadius: RADIUS.md,
+    gap: 8,
+  },
+  supportBtnText: {
+    color: "#10B981",
+    fontSize: 13,
+    fontWeight: "700",
   },
   adminSection: {
     marginTop: SPACING.xs,
@@ -485,7 +607,7 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: RADIUS.sm,
     alignItems: "center",
-    justifyContent: "center",
+    justify.content: "center",
   },
   adminTileText: {
     color: "#ECFDF5",

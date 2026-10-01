@@ -11,8 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 const Tab = createBottomTabNavigator();
 
 export const MainTabNavigator = () => {
-  const { user } = useContext(AuthContext);
-  const canManageAll = user?.role === "Staff" || user?.role === "Admin" || user?.role === "SuperAdmin";
+  const isSuperAdmin = user?.role === "SuperAdmin";
+  const isStaff = user?.role !== "User" && !isSuperAdmin;
+  const canSeeAllTickets = isSuperAdmin || isStaff;
 
   return (
     <Tab.Navigator
@@ -55,11 +56,11 @@ export const MainTabNavigator = () => {
         component={UserComplaintDashboardScreen}
         options={{ tabBarLabel: "My Tickets" }}
       />
-      {canManageAll && (
+      {canSeeAllTickets && (
         <Tab.Screen
           name="AllComplaintsTab"
           component={ComplaintsDashboardScreen}
-          options={{ tabBarLabel: "All Tickets" }}
+          options={{ tabBarLabel: isStaff ? "Task Queue" : "All Tickets" }}
         />
       )}
       <Tab.Screen

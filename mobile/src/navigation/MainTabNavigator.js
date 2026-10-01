@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 const Tab = createBottomTabNavigator();
 
 export const MainTabNavigator = () => {
+  const { user } = useContext(AuthContext);
   const isSuperAdmin = user?.role === "SuperAdmin";
   const isStaff = user?.role !== "User" && !isSuperAdmin;
   const canSeeAllTickets = isSuperAdmin || isStaff;

@@ -26,13 +26,19 @@ export const AuthProvider = ({ children }) => {
       const storedToken = await Storage.getItem("token");
       const storedUser = await Storage.getItem("user");
 
-      if (storedToken && storedUser) {
+      if (storedToken && storedUser && storedUser !== "undefined") {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.warn("Invalid stored user JSON", e);
+        }
         try {
           const res = await authService.getProfile();
-          setUser(res.data.user);
-          await Storage.setItem("user", JSON.stringify(res.data.user));
+          if (res.data?.user) {
+            setUser(res.data.user);
+            await Storage.setItem("user", JSON.stringify(res.data.user));
+          }
         } catch (e) {
           console.warn("Token validation failed on launch", e?.message);
         }

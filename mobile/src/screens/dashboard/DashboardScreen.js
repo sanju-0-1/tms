@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: RADIUS.md,
     alignItems: "center",
-    justify.content: "center",
+    justifyContent: "center",
     gap: 6,
     ...SHADOWS.small,
   },
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   },
   sectionHeadRow: {
     flexDirection: "row",
-    justify.content: "space-between",
+    justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: SPACING.sm,
   },
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   },
   activityHeader: {
     flexDirection: "row",
-    justify.content: "space-between",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 6,
   },
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   },
   activityMetaRow: {
     flexDirection: "row",
-    justify.content: "space-between",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   activityMeta: {
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(16, 185, 129, 0.22)",
     padding: SPACING.lg,
     alignItems: "center",
-    justify.content: "center",
+    justifyContent: "center",
   },
   emptyIcon: {
     fontSize: 28,
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: RADIUS.sm,
     alignItems: "center",
-    justify.content: "center",
+    justifyContent: "center",
   },
   adminTileText: {
     color: "#ECFDF5",

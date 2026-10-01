@@ -1,25 +1,39 @@
 import axios from "axios";
+import { Storage } from "./storage";
+import { Platform } from "react-native";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://tms-047i.onrender.com/api";
-export const BASE_URL = process.env.REACT_APP_API_BASE_URL 
-  ? process.env.REACT_APP_API_BASE_URL.replace("/api", "") 
-  : "https://tms-047i.onrender.com";
+// Render deployed backend URL
+const DEFAULT_HOST = "https://tms-047i.onrender.com";
 
-const getToken = () => {
-  return localStorage.getItem("token");
+
+let currentBaseUrl = `${DEFAULT_HOST}/api`;
+
+export const setCustomBaseUrl = (url) => {
+  currentBaseUrl = url.endsWith("/api") ? url : `${url}/api`;
+  api.defaults.baseURL = currentBaseUrl;
 };
 
+export const getBaseUrl = () => currentBaseUrl;
+
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: currentBaseUrl,
+  timeout: 15000,
 });
 
-api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await Storage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (e) {
+      console.warn("Failed to get stored token", e);
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export const authService = {
   login: (email, password) => api.post("/auth/login", { email, password }),

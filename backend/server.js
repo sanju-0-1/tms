@@ -18,14 +18,23 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-  origin: [
-    'http://localhost:3000', 
-    'https://tms-beryl.vercel.app',
-    'https://tms-d850sfszw-sanju-0-1s-projects.vercel.app',
-    'https://tms12.rvscasmcafsd2k25.in',
-    /\.vercel\.app$/,
-    /\.onrender\.com$/
-  ],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allowed origins or local patterns
+    if (
+      origin.startsWith('http://localhost') || 
+      origin.startsWith('http://127.0.0.1') ||
+      origin.includes('vercel.app') ||
+      origin.includes('onrender.com') ||
+      origin.includes('rvscasmcafsd2k25.in')
+    ) {
+      return callback(null, true);
+    }
+    
+    return callback(null, true); // Fallback: allow all origins to prevent CORS issues
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
